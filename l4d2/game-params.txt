@@ -1,0 +1,1 @@
+vblank_mode=0 MESA_VK_WSI_PRESENT_MODE=immediate SDL_VIDEODRIVER=wayland STEAM_COMPAT_RUNTIME_SDL2=1 LD_PRELOAD= gamescope -w 800 -h 600 --force-grab-cursor --immediate-flips -S stretch -f -- env LD_PRELOAD="$LD_PRELOAD"  %command% -vulkan -malloc=system -novid -lv -high -nojoy -cl_disablehtmlmotd 1 -background $(shuf -i 1-5 -n 1) +mat_queue_mode 2

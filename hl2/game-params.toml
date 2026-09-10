@@ -1,0 +1,19 @@
+flags = [
+    "-vulkan",
+    "-novid"
+]
+
+[env]
+vblank_mode = "0"
+MESA_VK_WSI_PRESENT_MODE = "immediate"
+
+[gamescope]
+width = 1280
+height = 720
+scaler = "stretch"
+fullscreen = true
+flags = [
+    "--force-grab-cursor",
+    "--immediate-flips",
+]
+

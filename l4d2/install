@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+STEAM_COMMON_PATH="${HOME}/.local/share/Steam/steamapps/common"
+STEAM_CFG_PATH="${STEAM_COMMON_PATH}/Left 4 Dead 2/left4dead2/cfg"
+
+CFG_PATH="$(pwd)"
+
+if [[ ! -n "${SR_OLDVERSIONS_PATH}" ]]; then
+    SR_OLDVERSIONS_PATH="${HOME}/l4d2"
+fi
+
+# Versions installed
+VERSIONS=$(find "${SR_OLDVERSIONS_PATH}" -maxdepth 1 -type d -name "L4D2-v*")
+
+link_cfgs() {
+    ln -sf "${CFG_PATH}/autoexec.cfg" "${STEAM_CFG_PATH}/autoexec.cfg"
+    ln -sf "${CFG_PATH}/binds.cfg" "${STEAM_CFG_PATH}/binds.cfg"
+
+    echo "Linked steam version config files"
+
+    while IFS=' ' read -ra SR_PATHS; do
+        for version_full_path in "${SR_PATHS[@]}"; do
+            version=$(basename "${version_full_path}")
+            sr_path="${SR_OLDVERSIONS_PATH}/${version}/Left 4 Dead 2/left4dead2/cfg"
+            ln -sf "${CFG_PATH}/sr_autoexec.cfg" "${sr_path}/autoexec.cfg"
+            ln -sf "${CFG_PATH}/sr_binds.cfg" "${sr_path}/binds.cfg"
+
+            if [[ ! -d "${sr_path}" ]]; then
+                echo "Skipped ${version} DIRECTORY DOES NOT EXIST"
+                continue
+            fi
+
+            echo
+            echo "AT VERSION             : ${version:6}"
+            echo "Symlinked autoexec.cfg : ${sr_path}/autoexec.cfg"
+            echo "Symlinked binds.cfg    : ${sr_path}/binds.cfg"
+        done
+    done <<< "$VERSIONS"
+}
+
+link_cfgs
+
