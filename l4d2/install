@@ -1,21 +1,32 @@
 #!/usr/bin/env bash
+
+set -oe pipefail
+
 STEAM_COMMON_PATH="${HOME}/.local/share/Steam/steamapps/common"
 STEAM_CFG_PATH="${STEAM_COMMON_PATH}/Left 4 Dead 2/left4dead2/cfg"
 
-CFG_PATH="$(pwd)"
+CFG_PATH="$(cd -- "$(dirname "${BASH_SOURCE[0]}")" && pwd || exit)"
+CYCLERS_PATH="$CFG_PATH/cyclers"
 
 if [[ ! -n "${SR_OLDVERSIONS_PATH}" ]]; then
     SR_OLDVERSIONS_PATH="${HOME}/l4d2"
 fi
 
 # Versions installed
-VERSIONS=$(find "${SR_OLDVERSIONS_PATH}" -maxdepth 1 -type d -name "L4D2-v*")
+VERSIONS="$(find "${SR_OLDVERSIONS_PATH}" -maxdepth 1 -mindepth 1 -type d -name "L4D2-v*")"
+CYCLERS="$(find "${CYCLERS_PATH}" -maxdepth 1 -mindepth 1 -type f -name '*.cfg')"
+
+print_linked() {
+    base="$(basename "$CFG_PATH/$1")"
+    echo -e " \033[1;32m[linked]:\033[1;34m $base\033[0m -> $2\033[0m"
+}
 
 link_cfgs() {
     ln -sf "${CFG_PATH}/autoexec.cfg" "${STEAM_CFG_PATH}/autoexec.cfg"
     ln -sf "${CFG_PATH}/binds.cfg" "${STEAM_CFG_PATH}/binds.cfg"
 
-    echo "Linked steam version config files"
+    echo -e "\033[1mLinked steam version config files\033[0m"
+    echo
 
     while IFS=' ' read -ra SR_PATHS; do
         for version_full_path in "${SR_PATHS[@]}"; do
@@ -24,15 +35,25 @@ link_cfgs() {
             ln -sf "${CFG_PATH}/sr_autoexec.cfg" "${sr_path}/autoexec.cfg"
             ln -sf "${CFG_PATH}/sr_binds.cfg" "${sr_path}/binds.cfg"
 
+            echo -e "\033[1;33m[version]: ${version:5}\033[0m"
+
+            while IFS=' ' read -ra C_PATHS; do
+                for cycler_full_path in "${C_PATHS[@]}"; do
+                    cycler_name="$(basename "${cycler_full_path}")"
+                    linked_path="${sr_path}/${cycler_name}"
+
+                    ln -sf "$CYCLERS_PATH/${cycler_name}" "${linked_path}"
+                    print_linked "${cycler_name}" "${linked_path}"
+                done
+            done <<< "$CYCLERS"
+
             if [[ ! -d "${sr_path}" ]]; then
                 echo "Skipped ${version} DIRECTORY DOES NOT EXIST"
                 continue
             fi
 
-            echo
-            echo "AT VERSION             : ${version:6}"
-            echo "Symlinked autoexec.cfg : ${sr_path}/autoexec.cfg"
-            echo "Symlinked binds.cfg    : ${sr_path}/binds.cfg"
+            print_linked "autoexec.cfg" "${sr_path}/autoexec.cfg"
+            print_linked "binds.cfg" "${sr_path}/binds.cfg"
         done
     done <<< "$VERSIONS"
 }
