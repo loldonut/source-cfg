@@ -6,18 +6,22 @@ flags = [
     "-nojoy",
     "-background $(shuf -i 1-5 -n 1)",
     "-cl_disablehtmlmotd 1",
-    "+mat_queue_mode 2"
+    "+mat_queue_mode 2",
+    "+map credits",
+    "+mp_gamemode gunbrain",
+    "+snd_mixahead 0.056"
 ]
 
 [env]
+PULSE_LATENCY_MSEC = "60"
 vblank_mode = "0"
 MESA_VK_WSI_PRESENT_MODE = "immediate"
 SDL_VIDEODRIVER = "wayland"
 STEAM_COMPAT_RUNTIME_SDL2 = "1"
 
 [gamescope]
-width = 800
-height = 600
+width = 640
+height = 480
 scaler = "stretch"
 fullscreen = true
 flags = [
